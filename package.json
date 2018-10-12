@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "d3-queue": "^3.0.7",
     "request": "^2.88.0"
   },
   "devDependencies": {

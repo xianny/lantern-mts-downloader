@@ -1,36 +1,17 @@
-const request = require('request')
 const fs = require('fs')
 
-const { url, chunkSize } = require('./config')
+const { getContentLength, range, chunkedDownload } = require('./lib')
 
-function run() {
-  return request({
-    url,
-    method: 'HEAD'
-  }, (err, resp, body) => {
-    const size = parseInt(resp.headers['content-length'])
+function run(config) {
+  const { url, chunkSize, outPath } = config
 
-    if (isNaN(size)) {
-      console.log(`Received invalid content-length header, exiting: [${resp.headers['content-length']}]`)
-      return
-    }
-
-    const chunks = range(0, size, chunkSize)
-    console.log(chunks)
-
-    fs.writeFileSync('test.txt', body)
-  })
+  getContentLength(url)
+    .then(size => {
+      const chunks = range(0, size, chunkSize)
+      console.log(`Downloading ${parseInt(size/1000)}mb file in ${chunks.length} chunks`)
+      return chunkedDownload(chunks, url)
+    })
+    .then(content => fs.writeFileSync(outPath, content))
 }
 
-
-function range(start, end, step) {
-  const _step = step ? step : 1
-
-  if (start >= end) return [start]
-  return [start, ...range(start + _step, end, _step)]
-}
-
-module.exports = {
-  run,
-  range
-}
+module.exports = run
