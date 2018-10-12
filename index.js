@@ -1,21 +1,26 @@
-const request = require('request');
-const fs = require('fs');
+const request = require('request')
+const fs = require('fs')
 
-const url = `https://www.dropbox.com/s/t3j71ued5sjnz3a/dummy.txt?dl=1`
-const chunkSize = 1000000 // 1mb
+const { url, chunkSize } = require('./config')
 
-request({
+function run() {
+  return request({
     url,
     method: 'HEAD'
   }, (err, resp, body) => {
-    const size = parseInt(resp.headers['content-length']);
-    const chunks = range(0, size, chunkSize)
+    const size = parseInt(resp.headers['content-length'])
 
-    console.log(size)
+    if (isNaN(size)) {
+      console.log(`Received invalid content-length header, exiting: [${resp.headers['content-length']}]`)
+      return
+    }
+
+    const chunks = range(0, size, chunkSize)
     console.log(chunks)
 
     fs.writeFileSync('test.txt', body)
   })
+}
 
 
 function range(start, end, step) {
@@ -23,4 +28,9 @@ function range(start, end, step) {
 
   if (start >= end) return [start]
   return [start, ...range(start + _step, end, _step)]
+}
+
+module.exports = {
+  run,
+  range
 }
