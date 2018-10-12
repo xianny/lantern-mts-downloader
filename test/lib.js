@@ -36,7 +36,6 @@ tap.test('getContentLength function should return content length', (t) => {
 
   const mockLength = 60000000
   nock(url)
-    .log(console.log)
     .head('/')
     .reply(200, '', { 'content-length': mockLength})
 

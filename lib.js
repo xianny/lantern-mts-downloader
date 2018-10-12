@@ -24,6 +24,8 @@ function partialRequest(url, start, end, done) {
       'Range': `bytes=${start}-${end}`
     }
   }, (err, resp, body) => {
+    if (!err) console.log(`Successfully downloaded byterange ${start} to ${end}`)
+    if (err) console.log(`Error downloading byterange ${start} to ${end}: [${err}]`)
     done(err, body)
   })
 }
@@ -34,10 +36,16 @@ function getContentLength(url) {
       url,
       method: 'HEAD'
     }, (err, resp) => {
-      const size = parseInt(resp.headers['content-length'])
-      if (isNaN(size)) {
-        return reject(`Received invalid content-length header: [${resp.headers['content-length']}]`)
+      if (!resp || !resp.headers || !resp.headers['content-length']) {
+        return reject(new Error('Couldn\'t find response headers'))
       }
+
+      const size = parseInt(resp.headers['content-length'])
+
+      if (isNaN(size)) {
+        return reject(new Error(`Received invalid content-length header: [${resp.headers['content-length']}]`))
+      }
+
       return resolve(size)
     })
   })
