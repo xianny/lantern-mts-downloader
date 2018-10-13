@@ -2,8 +2,8 @@ const fs = require('fs')
 
 const { getContentLength, range, chunkedDownload } = require('./lib')
 
-function run(config) {
-  const { url, chunkSize, outPath } = config
+function run(options) {
+  const { url, chunkSize, outPath } = options
 
   return getContentLength(url)
     .then(size => {
